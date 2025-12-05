@@ -1,29 +1,27 @@
-import ButtonGradient from "./assets/svg/ButtonGradient";
-import Benefits from "./components/Benefits";
-import Collaboration from "./components/Collaboration";
-import Footer from "./components/Footer";
-import Header from "./components/Header";
-import Hero from "./components/Hero";
-import Pricing from "./components/Pricing";
-import Roadmap from "./components/Roadmap";
-import Services from "./components/Services";
+import CompactLanding from "./components/Compact";
 
 const App = () => {
   return (
-    <>
-      <div className="pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
-        <Header />
-        <Hero />
-        <Benefits />
-        <Collaboration />
-        <Services />
-        <Pricing />
-        <Roadmap />
-        <Footer />
-      </div>
-
-      <ButtonGradient />
-    </>
+    <div
+      className="min-h-screen overflow-hidden"
+      style={{
+        background: `
+          linear-gradient(
+            to bottom,
+            #0C190F 0%,    /* deep forest green */
+            #0C190F 25%,   /* stay green at top */
+            #2A1A12 40%,   /* earth brown */
+            #6B1F10 55%,   /* warm crimson */
+            #8A0F1A 75%,   /* vivid red */
+            #050103 100%   /* deep heart black */
+          )
+        `,
+      }}
+    >
+      <main className="pt-[0]">
+        <CompactLanding />
+      </main>
+    </div>
   );
 };
 

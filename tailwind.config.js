@@ -6,32 +6,56 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      keyframes: {
+        'micro-vertical': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-2px)' },
+        },
+        'fade-slow': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.6' },
+        },
+        'fade-up-soft': {
+          '0%, 100%': { opacity: '1', transform: 'translateY(0)' },
+          '50%': { opacity: '1', transform: 'translateY(-4px)' },
+        },
+        'zoom-soft': {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '1', transform: 'scale(1.03)' },
+        },
+      },
+      animation: {
+        'fade-slow': 'fade-slow 4s ease-in-out infinite',
+        'fade-up-soft': 'fade-up-soft 2s ease-in-out infinite',
+        'zoom-soft': 'zoom-soft 7s ease-in-out infinite',
+        'micro-vertical': 'micro-vertical 5s ease-in-out infinite',
+      },
       colors: {
         color: {
-          1: "#AC6AFF",
-          2: "#FFC876",
-          3: "#FF776F",
+          1: "#6aff94",
+          2: "#ff7676",
+          3: "#6fff74",
           4: "#7ADB78",
-          5: "#858DFF",
-          6: "#FF98E2",
+          5: "#85ffa6",
+          6: "#98ffa9",
         },
         stroke: {
-          1: "#26242C",
+          1: "#242c26",
         },
         n: {
           1: "#FFFFFF",
-          2: "#CAC6DD",
-          3: "#ADA8C3",
-          4: "#757185",
-          5: "#3F3A52",
-          6: "#252134",
-          7: "#15131D",
-          8: "#0E0C15",
-          9: "#474060",
-          10: "#43435C",
-          11: "#1B1B2E",
-          12: "#2E2A41",
-          13: "#6C7275",
+          2: "#c6ddc7",
+          3: "#a8c3ab",
+          4: "#718574",
+          5: "#3a5243",
+          6: "#213428",
+          7: "#131d15",
+          8: "#125724",
+          9: "#3f5c46",
+          10: "#157d30",
+          11: "#1b2e20",
+          12: "#2a412f",
+          13: "#6c756c",
         },
       },
       fontFamily: {
@@ -69,7 +93,7 @@ export default {
       backgroundImage: {
         "radial-gradient": "radial-gradient(var(--tw-gradient-stops))",
         "conic-gradient":
-          "conic-gradient(from 225deg, #FFC876, #79FFF7, #9F53FF, #FF98E2, #FFC876)",
+          "conic-gradient(from 225deg, #ff7876, #79ff86, #53ff87, #98ffc8, #ff7676)",
       },
     },
   },
