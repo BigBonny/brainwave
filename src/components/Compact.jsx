@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Children } from "react";
 import Button from "./Button";
-import { sphere, water, forest, question } from "../assets";
+import { sphere, forest, question, skyBg } from "../assets"; // removed `water`
 import { benefits } from "../constants";
 import { client, urlFor } from "../lib/sanity";
 
@@ -31,8 +31,12 @@ const SectionBlock = ({ children, tone = "neutral", className = "" }) => {
   switch (tone) {
     case "intro":
       bgStyle = {
-        background:
-          "linear-gradient(to bottom,#FCFDFE 0%,#E6F1F8 38%,#C7E1F2 100%)",
+        backgroundImage: `url(${skyBg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "bottom center",
+        backgroundRepeat: "no-repeat",
+        minHeight: "100vh", // fixed typo
+        width: "100%",
       };
       break;
 
@@ -75,6 +79,9 @@ const SectionBlock = ({ children, tone = "neutral", className = "" }) => {
       bgStyle = undefined;
   }
 
+  // turn children into an array so we can stagger them
+  const childArray = Children.toArray(children);
+
   return (
     <section
       ref={ref}
@@ -85,12 +92,26 @@ const SectionBlock = ({ children, tone = "neutral", className = "" }) => {
         text-center
         px-6 md:px-10 lg:px-16
         py-16 md:py-20
-        transition-all duration-[1000ms] ease-out
-        ${show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}
+        snap-start                 /* for scroll snap */
         ${className}
       `}
     >
-      <div className="w-full max-w-5xl mx-auto">{children}</div>
+      <div className="w-full max-w-5xl mx-auto px-6 md:px-10 lg:px-16">
+        {childArray.map((child, index) => (
+          <div
+            key={index}
+            className={`
+              transition-all duration-[900ms] ease-out
+              ${show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}
+            `}
+            style={{
+              transitionDelay: `${index * 120}ms`, // stagger
+            }}
+          >
+            {child}
+          </div>
+        ))}
+      </div>
     </section>
   );
 };
@@ -157,8 +178,8 @@ const Compact = () => {
   }, []);
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden text-white font-serif">
-      {/* Vignette globale sur les côtés */}
+    <div className="relative h-screen w-full overflow-x-hidden overflow-y-scroll text-white font-serif snap-y snap-mandatory">
+      {/* Vignette globale sur les côtés (tout au fond) */}
       <div
         className="fixed inset-0 -z-20 pointer-events-none"
         style={{
@@ -169,9 +190,28 @@ const Compact = () => {
         }}
       />
 
-      <main className="flex flex-col items-stretch">
+      {/* Halos décoratifs – entre la vignette et le contenu */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        {/* Halo ciel / intro */}
+        <div className="absolute -top-24 -left-10 w-[260px] h-[260px] rounded-full bg-[#cfe4f7]/45 blur-3xl" />
+
+        {/* Halo forêt */}
+        <div className="absolute top-1/2 right-[-80px] w-[280px] h-[280px] -translate-y-1/2 rounded-full bg-[#719882]/35 blur-3xl" />
+
+        {/* Halo transition vers le rouge */}
+        <div className="absolute top-[65%] left-[5%] w-[260px] h-[260px] rounded-full bg-[#c7a697]/30 blur-3xl" />
+
+        {/* Halo rouge / bas de page */}
+        <div className="absolute bottom-[-140px] left-[18%] w-[320px] h-[320px] rounded-full bg-[#e38a7d]/28 blur-3xl" />
+
+        {/* Voile doux en haut de page */}
+        <div className="absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-white/5 via-transparent to-transparent" />
+      </div>
+
+      {/* Contenu au-dessus des halos */}
+      <main className="relative z-10 flex flex-col items-stretch">
         {/* 1) INTRO – PALETTE CLAIRE + CADRE CIEL */}
-        <SectionBlock tone="intro">
+        <SectionBlock tone="intro" className="!px-0 !mx-0 w-full">
           <h1
             className="text-[48px] lg:text-[80px] tracking-wide mb-10 mt-10 text-[#1A2A36] font-semibold"
             style={{
@@ -190,25 +230,13 @@ const Compact = () => {
             }}
           >
             {content?.introText ||
-              "Sphèora — Dans un ciel vaste et lumineux, des sphères flottaient doucement, portées par un souffle invisible. Elles glissaient entre les nuages, chacune avec une histoire à raconter, un monde à dévoiler. Certaines brillaient d’une lumière douce, d’autres rougissaient comme un cœur qui bat."}
+              `Dans un ciel vaste et lumineux, des sphères flottaient doucement, portées
+par un souffle invisible. Elles glissaient entre les nuages, chacune
+renfermant un instant à préserver, un monde à dévoiler. À travers leur
+transparence, le temps semblait suspendu, retenu dans une perle
+fragile. Chaque sphère devenait une promesse silencieuse, un lieu où
+l’éphémère acceptait de durer.`}
           </p>
-
-          <div className="w-full flex justify-center mt-12">
-            <ThemedFrame
-              variant="sky"
-              className="max-w-[520px] w-full aspect-[4/3] animate-float-soft"
-            >
-              <img
-                src={
-                  content?.introImage
-                    ? urlFor(content.introImage).width(900).url()
-                    : water
-                }
-                className="w-full h-full object-cover"
-                alt="Sphères dans le ciel"
-              />
-            </ThemedFrame>
-          </div>
         </SectionBlock>
 
         {/* 2) TRANSITION → FORÊT */}
@@ -221,65 +249,56 @@ const Compact = () => {
             }}
           >
             {content?.transitionForestText ||
-              "La première sphère s’approcha d’une forêt silencieuse. Elle descendit entre les branches et la mousse, comme attirée par un murmure ancien. Elle se posa délicatement, prête à révéler son univers."}
+              `La première sphère s’approcha d’une forêt silencieuse.
+Elle descendit entre les branches et la mousse, comme attirée par un
+murmure ancien. Elle se posa délicatement, prête à révéler son
+univers.`}
           </p>
         </SectionBlock>
 
         {/* 3) CHAPITRE 1 – Écrin de Verdure (ENCADRÉ PAR LE CADRE BOIS) */}
         <SectionBlock tone="forest">
           <div className="relative w-full">
-            {/* cadre bois de section */}
-
             <div className="relative z-10">
-              <h2
-                className="text-[36px] lg:text-[60px] tracking-wide mt-10 text-[#3E5A48] font-semibold mb-[40px] animate-zoom-soft"
-                style={{
-                  fontFamily: "Cormorant Garamond, serif",
-                  letterSpacing: "0.2rem",
-                }}
-              >
-                {content?.chapter1Title || "Chapitre 1 - Écrin de Verdure"}
-              </h2>
+              <div className="w-full flex justify-center mt-[40px]">
+                <ThemedFrame
+                  variant="forest"
+                  className="max-w-[520px] w-full animate-float-soft"
+                >
+                  <div className="w-full flex items-center justify-center">
+                    <img
+                      src={
+                        content?.chapter1Image
+                          ? urlFor(content.chapter1Image).width(900).url()
+                          : forest
+                      }
+                      className="max-w-full h-auto object-contain"
+                      alt="Écrin de Verdure"
+                    />
+                  </div>
+                </ThemedFrame>
+              </div>
 
               <p
-                className="max-w-3xl mx-auto mt-[40px] text-[#4F6B57] text-lg mb-[60px] text-[15px] lg:text-[18px] animate-micro-vertical"
+                className="max-w-3xl mx-auto mt-[40px] text-lg mb-[60px] text-[15px] lg:text-[18px] animate-micro-vertical"
                 style={{
                   fontFamily: "Montserrat Light, serif",
                   letterSpacing: "0.1rem",
                 }}
               >
                 {content?.chapter1Text ||
-                  `Dès que vous posez les yeux sur cette sphère, vous sentez la forêt
-s’éveiller. À travers le verre transparent, un cerf au bois majestueux se tient immobile, tel un roi silencieux veillant sur son royaume.
-À ses pieds, un champignon cèpe en feutrine surgit dans un creux,
-et plusieurs gouttes d’eau semblent suspendues sur de petites
-pierres d’agate mousse, comme si la pluie avait été figée par magie.
-
-L’air semble empli du parfum subtil de la mousse et du bois,
-tandis que de petites fougères séchées et quelques feuilles de
-chêne ajoutent des touches de vert et de brun. Une bougie en forme
-de pomme de pin diffuse une lumière douce et chaleureuse. Chaque
-détail a été pensé pour éveiller vos sens, comme si la nature
-entière était capturée dans ce fragile écrin.`}
+                  `Dès que vous tenez cette sphère entre vos mains, la
+forêt s’éveille en silence.
+Un cerf au bois majestueux veille, roi discret d’un royaume immobile.
+Non loin de lui, un champignon cèpe en feutrine émerge, et une pierre
+d’agate mousse semble retenir la pluie figée.
+Un petit sachet fait main, paré de fougères séchées comme des secrets
+offerts par la forêt, accompagne cet univers fragile, tandis qu’une
+bougie pomme de pin, parfumée au cyprès, diffuse une lumière douce,
+comme un souffle de vie.
+De délicates feuilles de chêne et une renoncule viennent sceller ce
+monde suspendu, où chaque instant respire dans sa fragile harmonie.`}
               </p>
-
-              {/* Image principale encadrée gradient forêt */}
-              <div className="w-full flex justify-center mt-[40px]">
-                <ThemedFrame
-                  variant="forest"
-                  className="max-w-[520px] w-full aspect-[4/3] animate-float-soft"
-                >
-                  <img
-                    src={
-                      content?.chapter1Image
-                        ? urlFor(content.chapter1Image).width(900).url()
-                        : forest
-                    }
-                    className="w-full h-full object-cover"
-                    alt="Écrin de Verdure"
-                  />
-                </ThemedFrame>
-              </div>
 
               {/* Galerie visible sans scroll horizontal : grille 3x2 */}
               <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-5">
@@ -309,7 +328,7 @@ entière était capturée dans ce fragile écrin.`}
                       key={index}
                       variant="forest"
                       className={
-                        "w-full lg:col-span-2 hover:scale-[1.02] transition-transform duration-300" +
+                        `w-full lg:col-span-2 hover:scale-[1.02] transition-transform duration-300` +
                         positionClasses
                       }
                     >
@@ -348,8 +367,7 @@ entière était capturée dans ce fragile écrin.`}
         {/* 4) TRANSITION vers le Rouge */}
         <SectionBlock tone="to-red">
           <p
-            className="max-w-3xl mx-auto mt-[80px] text-lg mb-[80px] text-[15px] lg:text-[18px] animate-fade-slow
-             bg-gradient-to-b from-[#4F6B57] to-[#C46B6A] bg-clip-text text-transparent"
+            className="max-w-3xl mx-auto mt-[80px] text-lg mb-[80px] text-[15px] lg:text-[18px] animate-fade-slow bg-gradient-to-b from-[#4F6B57] to-[#C46B6A] bg-clip-text text-transparent"
             style={{
               fontFamily: "Montserrat Light, serif",
               letterSpacing: "0.1rem",
@@ -371,8 +389,6 @@ murmures d'amour prêts à éclore.`}
         {/* 5) CHAPITRE 2 – Rouge Éternel (ENCADRÉ PAR LE CADRE SOIE ROUGE) */}
         <SectionBlock tone="red">
           <div className="relative w-full">
-            {/* cadre soie rouge de section */}
-
             <div className="relative z-10">
               <h2
                 className="text-[36px] lg:text-[60px] tracking-wide mt-10 text-[#8B1E23] font-semibold mb-[40px] animate-zoom-soft"
@@ -385,7 +401,7 @@ murmures d'amour prêts à éclore.`}
               </h2>
 
               <p
-                className="max-w-3xl mx-auto mt-[40px] text-[#F3C1BA] text-lg mb-[60px] text-[15px] lg:text-[18px] animate-micro-vertical"
+                className="max-w-3xl mx-auto mt-[40px] text-black text-lg mb-[60px] text-[15px] lg:text-[18px] animate-micro-vertical"
                 style={{
                   fontFamily: "Montserrat Light, serif",
                   letterSpacing: "0.1rem",
@@ -406,17 +422,19 @@ découvrir.`}
               <div className="w-full flex justify-center mt-[40px]">
                 <ThemedFrame
                   variant="silk"
-                  className="max-w-[380px] w-full aspect-square animate-sphere-glow"
+                  className="max-w-[600px] w-full animate-sphere-glow"
                 >
-                  <img
-                    src={
-                      content?.chapter2Image
-                        ? urlFor(content.chapter2Image).width(700).url()
-                        : sphere
-                    }
-                    className="w-full h-full object-cover"
-                    alt="Rouge Éternel"
-                  />
+                  <div className="w-full flex items-center justify-center">
+                    <img
+                      src={
+                        content?.chapter2Image
+                          ? urlFor(content.chapter2Image).width(700).url()
+                          : sphere
+                      }
+                      className="max-w-full h-auto object-contain"
+                      alt="Rouge Éternel"
+                    />
+                  </div>
                 </ThemedFrame>
               </div>
 
@@ -434,7 +452,7 @@ découvrir.`}
                   return (
                     <ThemedFrame
                       key={index}
-                      variant="silk"
+                      variant=""
                       className="w-full aspect-[4/3] hover:scale-[1.02] transition-transform duration-300 flex items-center justify-center"
                     >
                       <img
@@ -485,10 +503,7 @@ découvrir.`}
           <div className="flex flex-col items-center gap-8 w-full">
             {/* WhatsApp */}
             <a
-              href={
-                content?.whatsapp ||
-                "https://wa.me/33600000000"
-              }
+              href={content?.whatsapp || "https://wa.me/33600000000"}
               target="_blank"
               rel="noreferrer"
               className="px-6 py-3 rounded-full bg-[#25D366] text-black text-lg font-semibold shadow-[0_0_18px_rgba(37,211,102,0.5)] hover:bg-[#32e375] transition-colors"
@@ -522,7 +537,8 @@ découvrir.`}
             </form>
 
             <p className="text-xs text-white/45 mt-4">
-              © {new Date().getFullYear()} — Sphèora. Chaque sphère est un monde en suspens.
+              © {new Date().getFullYear()} — Sphèora. Chaque sphère est un monde
+              en suspens.
             </p>
           </div>
         </SectionBlock>

@@ -2,6 +2,7 @@ import CompactLanding from "./components/Compact";
 
 const App = () => {
   return (
+    
     <div
       className="min-h-screen overflow-hidden"
       style={{
@@ -19,6 +20,7 @@ const App = () => {
       }}
     >
       <main className="pt-[0]">
+        
         <CompactLanding />
       </main>
     </div>
