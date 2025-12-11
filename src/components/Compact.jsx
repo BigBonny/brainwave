@@ -213,17 +213,26 @@ const Compact = () => {
         {/* 1) INTRO – PALETTE CLAIRE + CADRE CIEL */}
         <SectionBlock tone="intro" className="!px-0 !mx-0 w-full">
           <h1
-            className="text-[48px] lg:text-[80px] tracking-wide mb-10 mt-10 text-[#1A2A36] font-semibold"
+            className="text-[48px] lg:text-[80px] tracking-wide mb-10 mt-10 text-[#1A2A36] font-bold"
             style={{
-              fontFamily: "Cormorant Garamond, serif",
+              fontFamily: "Playfair Display, serif",
               letterSpacing: "0.2rem",
             }}
           >
             {content?.introTitle || "Sphèora"}
           </h1>
 
+          <h2
+            className="text-[24px] lg:text-[40px] tracking-wide mb-10 mt-10 text-[#1A2A36] font-semibold"
+            style={{
+              fontFamily: "Playfair Display, serif",
+            }}
+          >
+            L’art d’enfermer les instants en sphères
+          </h2>
+
           <p
-            className="max-w-3xl mx-auto text-[#5B6E7C] text-lg mb-12 mt-4 leading-relaxed text-[15px] lg:text-[18px]"
+            className="max-w-3xl mx-auto text-[#5B6E7C] text-lg mt-[90px] leading-relaxed text-[15px] lg:text-[18px]"
             style={{
               fontFamily: "Montserrat Light, serif",
               letterSpacing: "0.1rem",
